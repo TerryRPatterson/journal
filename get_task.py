@@ -2,35 +2,50 @@ import arrow
 local = arrow.utcnow().to("US/Eastern")
 
 
-def get_single(due, title, section):
+def get_single(due, title, section, flavor):
     if due == "Not Due":
-        return (f"\t{section} objective: {title}.\n")
+        if flavor:
+            return (f"\t{section} objective: {title}.\n")
+        else:
+            return f"{title}\n"
     else:
         dueDate = arrow.get(due)
-        if local > dueDate:
-            return (f"\t{section} objective {title} was due "
-                    f"{dueDate.humanize()}.\n")
+        print(flavor)
+        if flavor:
+            if local > dueDate:
+                    return (f"\t{section} objective {title} was due "
+                            f"{dueDate.humanize()}.\n")
+            else:
+                if flavor:
+                    return (f"\t{section} objective {title} must be completed "
+                            f"in {dueDate.humanize()}.\n")
         else:
-            return (f"\t{section} objective {title} must be completed in"
-                    f"{dueDate.humanize()}.\n")
+            return f"{Title} Due:{dueDate.humanize()}"
 
 
-def primary_get(journal):
+def primary_get(journal, flavor):
     title = journal["Primary"]["Title"]
     due = journal["Primary"]["Due"]
-    return get_single(due, title, "Primary")
+    return get_single(due, title, "Primary", flavor)
 
 
-def section_get(section, journal):
+def section_get(section, journal, flavor):
     output = ""
     for objective in journal[section]:
         title = objective["Title"]
         due = objective["Due"]
-        output += get_single(due, title, section)
-    return f"Your objectives in {section} are:\n{output}"
+        output += get_single(due, title, section, flavor)
+    if flavor:
+        return f"Your objectives in {section} are:\n{output}"
+    else:
+        return output
 
 
-def daily_get(journal):
+def daily_get(journal, flavor):
+    if not flavor:
+        prefix = ""
+    else:
+        prefix = "\t"
     completed = []
     not_completed = []
     output_not_completed = " Now you must complete:\n"
@@ -52,26 +67,29 @@ def daily_get(journal):
 
     for task in not_completed:
         title = task["Title"]
-        not_completed_string += f"\t{title}\n"
+        not_completed_string += f"{prefix}{title}\n"
     for task in completed:
         title = task["Title"]
-        completed_string += f"\t{title}\n"
-    if len(completed) == 0:
-        return ("You have not completed any tasks today.\nYou must finish:\n"
-                f"{not_completed_string}")
-    elif len(not_completed) == 0:
-        return ("You have completed all daily objective")
+        completed_string += f"{prefix}{title}\n"
+    if not flavor:
+        return not_completed_string
     else:
-        return (output_completed + completed_string + output_not_completed +
-                not_completed_string)
+        if len(completed) == 0:
+            return ("You have not completed any tasks today.\nYou must finish:"
+                    f"\n{not_completed_string}")
+        elif len(not_completed) == 0:
+            return ("You have completed all daily objective")
+        else:
+            return (output_completed + completed_string + output_not_completed
+                    + not_completed_string)
 
 
 def get(args, journal):
     if args.section == "Primary":
-        return primary_get(journal)
+        return primary_get(journal, args.flavor)
     elif args.section == "Daily":
-        return daily_get(journal)
+        return daily_get(journal, args.flavor)
     elif args.section in journal.keys():
-        return section_get(args.section, journal)
+        return section_get(args.section, journal, args.flavor)
     else:
         raise SyntaxError(f"Section: {section} was not found")
