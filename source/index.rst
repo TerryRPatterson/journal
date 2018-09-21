@@ -14,6 +14,3 @@ Welcome to Quest Journal's documentation!
     :filename: journal
     :func: create_parser
     :prog: journal
-
-Indices and tables
-==================
