@@ -22,7 +22,7 @@ def create_parser():
                             default=None, nargs="?")
     get_parser.add_argument("--no-flavor", help="Remove flavor text display "
                             "objectives in a line seperated format",
-                            action="store_true")
+                            action="store_false", dest="flavor")
 
     complete_parser = sub_parsers.add_parser("complete", help="Complete a "
                                              "specified objective.")

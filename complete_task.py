@@ -1,3 +1,7 @@
+import arrow
+
+local = arrow.utcnow().to("US/Eastern")
+
 def complete_daily(title, journal):
     dailies = journal["Daily"]
     output = "I am sorry that task was not found"
