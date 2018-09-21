@@ -9,34 +9,38 @@ from complete_task import complete
 from add import add
 from os import environ
 
-parser = argparse.ArgumentParser()
-sub_parsers = parser.add_subparsers(dest="subcommand")
-get_parser = sub_parsers.add_parser("get", help="Retrive information on the "
-                                    "current journal state.")
-get_parser.add_argument("section", help="Get information on a specfic section "
-                        "of the journal.", default=None, nargs="?")
-get_parser.add_argument("title", help="Get information on a specfic task.",
-                        default=None, nargs="?")
-get_parser.add_argument("--no-flavor", help="Remove flavor text display "
-                        "objectives in a line seperated format")
 
+def create_parser():
+    parser = argparse.ArgumentParser()
+    sub_parsers = parser.add_subparsers(dest="subcommand")
+    get_parser = sub_parsers.add_parser("get", help="Retrive information on "
+                                        "the current journal state.")
+    get_parser.add_argument("section", help="Get information on a specfic "
+                                            "section of the journal.",
+                                            default=None)
+    get_parser.add_argument("title", help="Get information on a specfic task.",
+                            default=None, nargs="?")
+    get_parser.add_argument("--no-flavor", help="Remove flavor text display "
+                            "objectives in a line seperated format",
+                            action="store_true")
 
-complete_parser = sub_parsers.add_parser("complete", help="Complete a "
-                                         "specified objective.")
-complete_parser.add_argument("section", help="The section of the objective to "
-                             "complete.")
-complete_parser.add_argument("title", help="The title of the objective to "
-                             "complete.", nargs="?")
+    complete_parser = sub_parsers.add_parser("complete", help="Complete a "
+                                             "specified objective.")
+    complete_parser.add_argument("section", help="The section of the objective"
+                                 " to complete.")
+    complete_parser.add_argument("title", help="The title of the objective to "
+                                 "complete.", nargs="?")
 
-add_parser = sub_parsers.add_parser("add", help="Adds a new objective to the"
-                                    " journal in the specified section")
-add_parser.add_argument("section", help="The section for the new journal "
-                        "entry.")
-add_parser.add_argument("title", help="The title of new journal entry",
-                        nargs="?")
-add_parser.add_argument("due_date", help="The due date of the new entry",
-                        nargs="?")
-get_parser.add_argument("--no-flavor", help="Remove flavor text display objectives in a line seperated format")
+    add_parser = sub_parsers.add_parser("add", help="Adds a new objective to "
+                                        "the journal in the specified section")
+    add_parser.add_argument("section", help="The section for the new journal "
+                            "entry.")
+    add_parser.add_argument("title", help="The title of new journal entry",
+                            nargs="?")
+    add_parser.add_argument("due_date", help="The due date of the new entry",
+                            nargs="?")
+
+    return parser
 
 
 subcommands = {"get": get,
@@ -45,6 +49,7 @@ subcommands = {"get": get,
 
 
 def main():
+    parser = create_parser()
     if __name__ == "__main__":
         args = parser.parse_args()
         if args.subcommand in subcommands:
