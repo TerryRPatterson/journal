@@ -3,7 +3,7 @@ def add_single(journal, section, title, due_date=None):
         raise SyntaxError("Section does not exist.")
     new_task = {"Title": title,
                 "Due": due_date}
-    journal.append(new_task)
+    journal[section].append(new_task)
     return f"{title} added to {section}"
 
 
@@ -26,9 +26,9 @@ def add(args, journal):
     else:
         new_title = None
     if "due" in args:
-        due = args.due
+        due_date = args.due
     else:
-        due = None
+        due_date = "Not Due"
     if "title" in args:
         title = args.title
     section = args.section

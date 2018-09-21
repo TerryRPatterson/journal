@@ -1,6 +1,6 @@
 import arrow
-
 local = arrow.utcnow().to("US/Eastern")
+
 
 def complete_daily(title, journal):
     dailies = journal["Daily"]
@@ -23,7 +23,7 @@ def complete_task(journal, section, title):
     if found:
         return f"{section} objective: {title} was completed."
     else:
-        raise SyntaxError(f"{section} objective: {title} not found.")
+        raise Exception(f"{section} objective: {title} not found.")
 
 
 def complete_primary(journal, new_title=None, due=None):
@@ -33,7 +33,15 @@ def complete_primary(journal, new_title=None, due=None):
         return f"You have completed: {old_title}!"
     else:
         journal["Primary"]["Title"] = new_title
-        journal["Primary"]["Due"] = due
+        if due is not None:
+            journal["Primary"]["Due"] = due
+            return (f"You have completed: {old_title}\n Your new primary "
+                    f"objective is {new_title} due "
+                    f"{arrow.get(due).humanize()}.\n")
+        else:
+            journal["Primary"]["Due"] = "Not Due"
+            return (f"You have completed: {old_title}\n Your new primary "
+                    f"objective is {new_title}.\n")
 
 
 def complete(args, journal):
