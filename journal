@@ -2,16 +2,20 @@
 
 
 import argparse
+import argcomplete
 from json import load, dump as save
-from sys import argv
+from sys import argv, stdout
 from get_task import get
 from complete_task import complete
 from add import add
-from os import environ
+from time import sleep
+from os import environ, open as fd_open, O_RDWR
+from fcntl import lockf, LOCK_NB, LOCK_UN, LOCK_EX
 
 
 def create_parser():
     parser = argparse.ArgumentParser()
+    argcomplete.autocomplete(parser)
     sub_parsers = parser.add_subparsers(dest="subcommand")
     get_parser = sub_parsers.add_parser("get", help="Retrive information on "
                                         "the current journal state.")
@@ -48,21 +52,43 @@ subcommands = {"get": get,
                "add": add}
 
 
-def main():
-    parser = create_parser()
+def procces_command(journal, journal_JSON, parser):
     if __name__ == "__main__":
         args = parser.parse_args()
         if args.subcommand in subcommands:
-            return subcommands[args.subcommand](args, journal)
-        return True
+            output = subcommands[args.subcommand](args, journal)
+            if args.subcommand != "get":
+                journal_JSON.truncate(0)
+                journal_JSON.seek(0)
+                save(journal, journal_JSON, indent=4, sort_keys=True)
+                journal_JSON.flush()
+            return output
+        raise Exception()
 
 
-home_dir = environ["HOME"]
+def aquire_file(url, command, parser):
+    try:
+        file_descriptor = fd_open(url, O_RDWR)
+        with open(file_descriptor, "r+") as file_object:
+            # Lock file if it is avaible with an exlusive lock.
+            lockf(file_descriptor, LOCK_NB | LOCK_EX)
+            file_contents = load(file_object)
+            output = command(file_contents, file_object, parser)
+            # unlock the file
+            lockf(file_descriptor, LOCK_UN)
+            return output
+    # If the file is locked wait a second and check again
+    except BlockingIOError:
+        sleep(1)
+        return aquire_file(url, command, parser)
 
-with open(f"{home_dir}/.config/questLog", "r+") as journalJSON:
-    journal = load(journalJSON)
-    message = main()
-    journalJSON.truncate(0)
-    journalJSON.seek(0)
-    save(journal, journalJSON, indent=4, sort_keys=True)
-    print(message)
+
+def main():
+    parser = create_parser()
+    home_dir = environ["HOME"]
+    journal_url = f"{home_dir}/.config/questLog"
+    message = aquire_file(journal_url, procces_command, parser)
+    stdout.write(message)
+
+
+main()

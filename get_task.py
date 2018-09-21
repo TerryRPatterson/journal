@@ -36,7 +36,7 @@ def section_get(section, journal, flavor):
         due = objective["Due"]
         output += get_single(due, title, section, flavor)
     if flavor:
-        return f"Your objectives in {section} are:\n{output}"
+        return f"Your objectives in {section} are:\n{output}\n"
     else:
         return output
 
@@ -76,12 +76,12 @@ def daily_get(journal, flavor):
     else:
         if len(completed) == 0:
             return ("You have not completed any tasks today.\nYou must finish:"
-                    f"\n{not_completed_string}")
+                    f"\n{not_completed_string}\n")
         elif len(not_completed) == 0:
-            return ("You have completed all daily objective")
+            return ("You have completed all daily objective\n")
         else:
             return (output_completed + completed_string + output_not_completed
-                    + not_completed_string)
+                    + not_completed_string + "\n")
 
 
 def get(args, journal):
