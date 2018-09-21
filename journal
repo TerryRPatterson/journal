@@ -4,11 +4,10 @@
 import argparse
 import argcomplete
 from json import load, dump as save
-from sys import argv, stdout
+from sys import argv
 from get_task import get
 from complete_task import complete
 from add import add
-from time import sleep
 from os import environ, open as fd_open, O_RDWR
 from fcntl import lockf, LOCK_UN, LOCK_EX
 
@@ -83,7 +82,8 @@ def main():
     home_dir = environ["HOME"]
     journal_url = f"{home_dir}/.config/questLog"
     message = aquire_file(journal_url, procces_command, parser)
-    stdout.write(message)
+    print(message)
+    return message
 
 
 main()

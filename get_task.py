@@ -5,20 +5,20 @@ local = arrow.utcnow().to("US/Eastern")
 def get_single(due, title, section, flavor):
     if due == "Not Due":
         if flavor:
-            return (f"\t{section} objective: {title}.\n")
+            return (f"\t{section} objective: {title}.")
         else:
-            return f"{title}\n"
+            return f"{title}"
     else:
         dueDate = arrow.get(due)
         print(flavor)
         if flavor:
             if local > dueDate:
                     return (f"\t{section} objective {title} was due "
-                            f"{dueDate.humanize()}.\n")
+                            f"{dueDate.humanize()}.")
             else:
                 if flavor:
                     return (f"\t{section} objective {title} must be completed "
-                            f"in {dueDate.humanize()}.\n")
+                            f"in {dueDate.humanize()}.")
         else:
             return f"{Title} Due:{dueDate.humanize()}"
 
@@ -34,9 +34,9 @@ def section_get(section, journal, flavor):
     for objective in journal[section]:
         title = objective["Title"]
         due = objective["Due"]
-        output += get_single(due, title, section, flavor)
+        output += f"{get_single(due, title, section, flavor)} \n"
     if flavor:
-        return f"Your objectives in {section} are:\n{output}\n"
+        return f"Your objectives in {section} are:\n{output}"
     else:
         return output
 
@@ -76,12 +76,12 @@ def daily_get(journal, flavor):
     else:
         if len(completed) == 0:
             return ("You have not completed any tasks today.\nYou must finish:"
-                    f"\n{not_completed_string}\n")
+                    f"\n{not_completed_string}")
         elif len(not_completed) == 0:
-            return ("You have completed all daily objective\n")
+            return ("You have completed all daily objective")
         else:
             return (output_completed + completed_string + output_not_completed
-                    + not_completed_string + "\n")
+                    + not_completed_string)
 
 
 def get(args, journal):

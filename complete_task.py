@@ -1,15 +1,14 @@
 import arrow
-
 local = arrow.utcnow().to("US/Eastern")
 
 
 def complete_daily(title, journal):
     dailies = journal["Daily"]
-    output = "I am sorry that task was not found\n"
+    output = "I am sorry that task was not found"
     for task in dailies:
         if task["Title"] == title:
             task["last_done"] = local.format()
-            output = f"{title} completed.\n"
+            output = f"{title} completed."
     return (output)
 
 
@@ -22,9 +21,9 @@ def complete_task(journal, section, title):
             found = True
             break
     if found:
-        return f"{section} objective: {title} was completed.\n"
+        return f"{section} objective: {title} was completed."
     else:
-        raise SyntaxError(f"{section} objective: {title} not found.\n")
+        raise Exception(f"{section} objective: {title} not found.")
 
 
 def complete_primary(journal, new_title=None, due=None):
