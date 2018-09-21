@@ -10,7 +10,7 @@ from complete_task import complete
 from add import add
 from time import sleep
 from os import environ, open as fd_open, O_RDWR
-from fcntl import lockf, LOCK_NB, LOCK_UN, LOCK_EX
+from fcntl import lockf, LOCK_UN, LOCK_EX
 
 
 def create_parser():
@@ -67,20 +67,15 @@ def procces_command(journal, journal_JSON, parser):
 
 
 def aquire_file(url, command, parser):
-    try:
         file_descriptor = fd_open(url, O_RDWR)
         with open(file_descriptor, "r+") as file_object:
             # Lock file if it is avaible with an exlusive lock.
-            lockf(file_descriptor, LOCK_NB | LOCK_EX)
+            lockf(file_descriptor, LOCK_EX)
             file_contents = load(file_object)
             output = command(file_contents, file_object, parser)
             # unlock the file
             lockf(file_descriptor, LOCK_UN)
             return output
-    # If the file is locked wait a second and check again
-    except BlockingIOError:
-        sleep(1)
-        return aquire_file(url, command, parser)
 
 
 def main():
