@@ -2,7 +2,6 @@
 
 
 import argparse
-import argcomplete
 from json import load, dump as save
 from sys import argv
 from get_task import get
@@ -14,34 +13,41 @@ from fcntl import lockf, LOCK_UN, LOCK_EX
 
 def create_parser():
     parser = argparse.ArgumentParser()
-    argcomplete.autocomplete(parser)
     sub_parsers = parser.add_subparsers(dest="subcommand")
     get_parser = sub_parsers.add_parser("get", help="Retrive information on "
                                         "the current journal state.")
-    get_parser.add_argument("section", help="Get information on a specfic "
-                                            "section of the journal.",
+    get_parser.add_argument("section", help="The section of the journal to "
+                                            "retrive tasks from.",
                                             default=None)
-    get_parser.add_argument("title", help="Get information on a specfic task.",
-                            default=None, nargs="?")
-    get_parser.add_argument("--no-flavor", help="Remove flavor text display "
-                            "objectives in a line seperated format",
-                            action="store_false", dest="flavor")
+
+    get_parser.add_argument("--no-flavor", help="Remove flavor text in the "
+                                                "output. Objectives in a line"
+                                                " seperated format.",
+                                                action="store_false",
+                                                dest="flavor")
 
     complete_parser = sub_parsers.add_parser("complete", help="Complete a "
                                              "specified objective.")
+
     complete_parser.add_argument("section", help="The section of the objective"
                                  " to complete.")
+
     complete_parser.add_argument("title", help="The title of the objective to "
                                  "complete.", nargs="?")
 
     add_parser = sub_parsers.add_parser("add", help="Adds a new objective to "
                                         "the journal in the specified section")
+
     add_parser.add_argument("section", help="The section for the new journal "
                             "entry.")
+
     add_parser.add_argument("title", help="The title of new journal entry",
                             nargs="?")
-    add_parser.add_argument("due_date", help="The due date of the new entry",
-                            nargs="?")
+
+    add_parser.add_argument("due_date", help="The due date of the new entry. "
+                                             "If not specified objective will "
+                                             "not be labeled as due.",
+                                             nargs="?")
 
     return parser
 

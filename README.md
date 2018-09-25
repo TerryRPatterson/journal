@@ -17,8 +17,8 @@ Sub-commands:
 
 
 get
----
-
+--------
+~~~~~~~~~~~~
 Retrive information on the current journal state.
 ```
    journal get [-h] [--no-flavor] section [title]
@@ -26,6 +26,7 @@ Retrive information on the current journal state.
 
 **Positional Arguments**
 
+Positional Arguments
 
 __section__
 
@@ -36,17 +37,17 @@ __title__
 Get information on a specfic task.
 
 
-**Named Arguments**
+Named Arguments
 
 
 __--no-flavor__
 
-Remove flavor text display objectives in a line seperated format.
-
+Default: True
+~~~~~~~~~~~~
 
 complete
 --------
-
+~~~~
 Complete a specified objective.
 ```
    journal complete [-h] section [title]
@@ -54,26 +55,28 @@ Complete a specified objective.
 ```
 **Positional Arguments**
 
+Positional Arguments
 
-__section__
+
+**section**
 
 The section of the objective to complete.
 
 __title__
 
 The title of the objective to complete.
-
+~~~~
 
 add
----
+-------
 
 Adds a new objective to the journal in the specified section
-```
+
+  ```bash
    journal add [-h] section [title] [due_date]
-```
+  ```
 
 Positional Arguments
-
 
 __section__
 
@@ -86,3 +89,5 @@ The title of new journal entry
 __due_date__
 
 The due date of the new entry
+~~~~~
+
