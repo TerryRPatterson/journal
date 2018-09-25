@@ -86,7 +86,8 @@ def aquire_file(url, command, parser):
 def main():
     parser = create_parser()
     home_dir = environ["HOME"]
-    journal_url = f"{home_dir}/.config/questLog"
+    questLogLocation = "."
+    journal_url = f"{questLogLocation}/questLog"
     message = aquire_file(journal_url, procces_command, parser)
     print(message)
     return message

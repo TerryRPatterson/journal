@@ -12,14 +12,14 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-# import os
-# import sys
-# sys.path.insert(0, os.path.abspath('.'))
+import os
+import sys
+sys.path.insert(0, os.path.abspath('.'))
 
 
 # -- Project information -----------------------------------------------------
 
-project = 'quest-log'
+project = 'Quest Journal'
 copyright = '2018, Terry Patterson'
 author = 'Terry Patterson'
 
@@ -39,15 +39,7 @@ release = '0.4.0'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    'sphinx.ext.autodoc',
-    'sphinx.ext.doctest',
-    'sphinx.ext.coverage',
-    'sphinx.ext.imgmath',
-    'sphinx.ext.ifconfig',
-    'sphinx.ext.viewcode',
-    'sphinx.ext.githubpages',
 ]
-
 extensions += ['sphinxarg.ext']
 
 # Add any paths that contain templates here, relative to this directory.
@@ -110,7 +102,7 @@ html_static_path = ['_static']
 # -- Options for HTMLHelp output ---------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'quest-logdoc'
+htmlhelp_basename = 'QuestJournaldoc'
 
 
 # -- Options for LaTeX output ------------------------------------------------
@@ -137,7 +129,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'quest-log.tex', 'quest-log Documentation',
+    (master_doc, 'QuestJournal.tex', 'Quest Journal Documentation',
      'Terry Patterson', 'manual'),
 ]
 
@@ -147,7 +139,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'quest-log', 'quest-log Documentation',
+    (master_doc, 'questjournal', 'Quest Journal Documentation',
      [author], 1)
 ]
 
@@ -158,8 +150,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'quest-log', 'quest-log Documentation',
-     author, 'quest-log', 'One line description of project.',
+    (master_doc, 'QuestJournal', 'Quest Journal Documentation',
+     author, 'QuestJournal', 'One line description of project.',
      'Miscellaneous'),
 ]
 
@@ -180,6 +172,3 @@ epub_title = project
 
 # A list of files that should not be packed into the epub file.
 epub_exclude_files = ['search.html']
-
-
-# -- Extension configuration -------------------------------------------------
