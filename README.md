@@ -1,8 +1,8 @@
 Welcome to Quest Journal's documentation!
 *****************************************
-
+```
    usage: journal [-h] {get,complete,add} ...
-
+```
 
 Positional Arguments
 ====================
@@ -20,27 +20,27 @@ get
 --------
 ~~~~~~~~~~~~
 Retrive information on the current journal state.
-
+```
    journal get [-h] [--no-flavor] section [title]
+```
 
+**Positional Arguments**
 
 Positional Arguments
 
-
-section
+__section__
 
 Get information on a specfic section of the journal.
 
-title
+__title__
 
 Get information on a specfic task.
 
 
 Named Arguments
 
---no-flavor
 
-Remove flavor text display objectives in a line seperated format
+__--no-flavor__
 
 Default: True
 ~~~~~~~~~~~~
@@ -49,9 +49,11 @@ complete
 --------
 ~~~~
 Complete a specified objective.
-
+```
    journal complete [-h] section [title]
 
+```
+**Positional Arguments**
 
 Positional Arguments
 
@@ -60,7 +62,7 @@ Positional Arguments
 
 The section of the objective to complete.
 
-title
+__title__
 
 The title of the objective to complete.
 ~~~~
@@ -76,16 +78,16 @@ Adds a new objective to the journal in the specified section
 
 Positional Arguments
 
-
-section
+__section__
 
 The section for the new journal entry.
 
-title
+__title__
 
 The title of new journal entry
 
-due_date
+__due_date__
 
 The due date of the new entry
 ~~~~~
+
