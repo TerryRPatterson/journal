@@ -4,30 +4,16 @@ import zipfile
 from glob import glob
 from os import chdir, remove, EX_IOERR
 from sys import exit
+from utility import get_user_confirmation
 
 
 OUTPUT_FILE = "QuestLog.zip"
 
 
-def get_user_confirmation(message):
-    vaild_postive = ["y", "yes"]
-    vaild_negative = ["n", "no"]
-    vaild_input_recived = False
-    while(not vaild_input_recived):
-        user_response = input(message)
-        user_response_folded = user_response.casefold()
-        if user_response_folded in vaild_postive:
-            vaild_input_recived = True
-            return True
-        elif user_response_folded in vaild_negative:
-            vaild_input_recived = True
-            return False
-        else:
-            message += f"\n{user_response} is not vaild please enter  Y or N: "
-
-
 def create_new_archive():
     with zipfile.ZipFile(OUTPUT_FILE, mode="x") as builtArchive:
+        builtArchive.write("install")
+        builtArchive.write("questLogExample")
         chdir("dist")
         for file in glob("**", recursive=True):
             builtArchive.write(file)

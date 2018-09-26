@@ -4,12 +4,13 @@
 import argparse
 from json import load, dump as save
 from sys import argv, exit, path as package_path
-from os import environ, open as fd_open, O_RDWR, EX_IOERR, path, mkdir
+from os import environ, open as fd_open, O_RDWR, EX_IOERR, path, makedirs
 from fcntl import lockf, LOCK_UN, LOCK_EX
 
 from get_task import get
 from complete_task import complete
 from add_task import add
+from utility import get_user_confirmation
 
 
 quest_log_example = '''{
@@ -17,23 +18,6 @@ quest_log_example = '''{
     "Primary": {},
     "Secondary": []
 }'''
-
-
-def get_user_confirmation(message):
-    vaild_postive = ["y", "yes"]
-    vaild_negative = ["n", "no"]
-    vaild_input_recived = False
-    while(not vaild_input_recived):
-        user_response = input(message)
-        user_response_folded = user_response.casefold()
-        if user_response_folded in vaild_postive:
-            vaild_input_recived = True
-            return True
-        elif user_response_folded in vaild_negative:
-            vaild_input_recived = True
-            return False
-        else:
-            message += f"\n{user_response} is not vaild please enter  Y or N: "
 
 
 def create_parser():
@@ -96,21 +80,25 @@ def procces_command(journal, journal_JSON, parser):
         raise Exception()
 
 
-def new_save_file(url, ask=True):
+def new_save_file(url, location_url, ask=True):
     user_response = get_user_confirmation("Save file not found. Should"
                                           " I create a new file at "
                                           f"{url}? (Y/N): ")
 
     if (user_response is True):
-        with open(url, "w") as new_file:
-            new_file.write(quest_log_example)
-            new_file.flush()
-            return True
+        try:
+            with open(url, "w") as new_file:
+                new_file.write(quest_log_example)
+                new_file.flush()
+                return True
+        except FileNotFoundError:
+            makedirs(location_url, exist_ok=True)
+            return new_save_file(url, location_url, ask=False)
     else:
         return False
 
 
-def aquire_file(url, command, parser):
+def aquire_file(url, command, parser, location_url):
         try:
             file_descriptor = fd_open(url, O_RDWR)
             with open(file_descriptor, "r+") as file_object:
@@ -122,7 +110,7 @@ def aquire_file(url, command, parser):
                 lockf(file_descriptor, LOCK_UN)
                 return output
         except FileNotFoundError:
-            new_file_created = new_save_file(url)
+            new_file_created = new_save_file(url, location_url)
             if new_file_created is True:
                 return aquire_file(url, command, parser)
             else:
@@ -135,10 +123,10 @@ def main():
     user_home = environ["HOME"]
     questLogLocation = f"{user_home}/.config/"
     journal_url = f"{questLogLocation}/questLog"
-    message = aquire_file(journal_url, procces_command, parser)
+    message = aquire_file(journal_url, procces_command, parser,
+                          questLogLocation)
     print(message)
     return message
 
 
 main()
-
