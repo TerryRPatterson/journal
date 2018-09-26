@@ -8,7 +8,7 @@ from sys import argv
 from get_task import get
 from complete_task import complete
 from add import add
-from os import environ, open as fd_open, O_RDWR
+from os import open as fd_open, O_RDWR, EX_IOERR, path, mkdir
 from fcntl import lockf, LOCK_UN, LOCK_EX
 
 
