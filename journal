@@ -3,14 +3,20 @@
 
 import argparse
 from json import load, dump as save
-from sys import argv, exit
-from get_task import get
-from complete_task import complete
-from add import add
+from sys import argv, exit, path as package_path
 from os import environ, open as fd_open, O_RDWR, EX_IOERR, path, mkdir
 from fcntl import lockf, LOCK_UN, LOCK_EX
 
-PROGRAM_PATH = path.dirname(path.realpath(argv[0]))
+from get_task import get
+from complete_task import complete
+from add_task import add
+
+
+quest_log_example = '''{
+    "Daily": [],
+    "Primary": {},
+    "Secondary": []
+}'''
 
 
 def get_user_confirmation(message):
@@ -90,24 +96,18 @@ def procces_command(journal, journal_JSON, parser):
         raise Exception()
 
 
-def new_save_file(url):
-    try:
-        user_response = get_user_confirmation("Save file not found. Should"
-                                              " I create a new file at "
-                                              f"{url}? (Y/N): ")
-        if (user_response is True):
-            example_file_path = f"{PROGRAM_PATH}/questLogExample"
-            with open(example_file_path, "r") as default_file,\
-                    open(url, "w") as new_file:
-                default_file_data = default_file.read()
-                new_file.write(default_file_data)
-                new_file.flush()
-                return True
-        else:
-            return False
-    except FileNotFoundError:
-        mkdir(f"{PROGRAM_PATH}/save")
-        return new_save_file(url)
+def new_save_file(url, ask=True):
+    user_response = get_user_confirmation("Save file not found. Should"
+                                          " I create a new file at "
+                                          f"{url}? (Y/N): ")
+
+    if (user_response is True):
+        with open(url, "w") as new_file:
+            new_file.write(quest_log_example)
+            new_file.flush()
+            return True
+    else:
+        return False
 
 
 def aquire_file(url, command, parser):
@@ -132,7 +132,8 @@ def aquire_file(url, command, parser):
 
 def main():
     parser = create_parser()
-    questLogLocation = f"{PROGRAM_PATH}/save/"
+    user_home = environ["HOME"]
+    questLogLocation = f"{user_home}/.config/"
     journal_url = f"{questLogLocation}/questLog"
     message = aquire_file(journal_url, procces_command, parser)
     print(message)
@@ -140,3 +141,4 @@ def main():
 
 
 main()
+
