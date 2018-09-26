@@ -3,12 +3,31 @@
 
 import argparse
 from json import load, dump as save
-from sys import argv
+from sys import argv, exit
 from get_task import get
 from complete_task import complete
 from add import add
-from os import environ, open as fd_open, O_RDWR
+from os import environ, open as fd_open, O_RDWR, EX_IOERR, path, mkdir
 from fcntl import lockf, LOCK_UN, LOCK_EX
+
+PROGRAM_PATH = path.dirname(path.realpath(argv[0]))
+
+
+def get_user_confirmation(message):
+    vaild_postive = ["y", "yes"]
+    vaild_negative = ["n", "no"]
+    vaild_input_recived = False
+    while(not vaild_input_recived):
+        user_response = input(message)
+        user_response_folded = user_response.casefold()
+        if user_response_folded in vaild_postive:
+            vaild_input_recived = True
+            return True
+        elif user_response_folded in vaild_negative:
+            vaild_input_recived = True
+            return False
+        else:
+            message += f"\n{user_response} is not vaild please enter  Y or N: "
 
 
 def create_parser():
@@ -71,22 +90,49 @@ def procces_command(journal, journal_JSON, parser):
         raise Exception()
 
 
+def new_save_file(url):
+    try:
+        user_response = get_user_confirmation("Save file not found. Should"
+                                              " I create a new file at "
+                                              f"{url}? (Y/N): ")
+        if (user_response is True):
+            example_file_path = f"{PROGRAM_PATH}/questLogExample"
+            with open(example_file_path, "r") as default_file,\
+                    open(url, "w") as new_file:
+                default_file_data = default_file.read()
+                new_file.write(default_file_data)
+                new_file.flush()
+                return True
+        else:
+            return False
+    except FileNotFoundError:
+        mkdir(f"{PROGRAM_PATH}/save")
+        return new_save_file(url)
+
+
 def aquire_file(url, command, parser):
-        file_descriptor = fd_open(url, O_RDWR)
-        with open(file_descriptor, "r+") as file_object:
-            # Lock file if it is avaible with an exlusive lock.
-            lockf(file_descriptor, LOCK_EX)
-            file_contents = load(file_object)
-            output = command(file_contents, file_object, parser)
-            # unlock the file
-            lockf(file_descriptor, LOCK_UN)
-            return output
+        try:
+            file_descriptor = fd_open(url, O_RDWR)
+            with open(file_descriptor, "r+") as file_object:
+                # Lock file with an exlusive lock.
+                lockf(file_descriptor, LOCK_EX)
+                file_contents = load(file_object)
+                output = command(file_contents, file_object, parser)
+                # unlock the file
+                lockf(file_descriptor, LOCK_UN)
+                return output
+        except FileNotFoundError:
+            new_file_created = new_save_file(url)
+            if new_file_created is True:
+                return aquire_file(url, command, parser)
+            else:
+                print("Save file was not created. Exiting.")
+                exit(EX_IOERR)
 
 
 def main():
     parser = create_parser()
-    home_dir = environ["HOME"]
-    questLogLocation = "."
+    questLogLocation = f"{PROGRAM_PATH}/save/"
     journal_url = f"{questLogLocation}/questLog"
     message = aquire_file(journal_url, procces_command, parser)
     print(message)
