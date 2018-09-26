@@ -40,7 +40,7 @@ if (user_permission is True):
     quest_log_location = f"{user_home}/.config/questLog"
     copyfile(f"{PROGRAM_PATH}/questLogExample", quest_log_location)
     if CURRENT_OS != "Windows":
-        symlink(f"{PROGRAM_PATH}/journal", f"{home}/bin/journal")
+        symlink(f"{PROGRAM_PATH}/journal", f"{user_home}/bin/journal")
     # else:
         # Not implemented
 
