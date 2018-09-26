@@ -2,46 +2,71 @@
 
 
 import argparse
-import argcomplete
 from json import load, dump as save
-from sys import argv
+from sys import argv, exit
 from get_task import get
 from complete_task import complete
 from add import add
-from os import open as fd_open, O_RDWR, EX_IOERR, path, mkdir
+from os import environ, open as fd_open, O_RDWR, EX_IOERR, path, mkdir
 from fcntl import lockf, LOCK_UN, LOCK_EX
+
+PROGRAM_PATH = path.dirname(path.realpath(argv[0]))
+
+
+def get_user_confirmation(message):
+    vaild_postive = ["y", "yes"]
+    vaild_negative = ["n", "no"]
+    vaild_input_recived = False
+    while(not vaild_input_recived):
+        user_response = input(message)
+        user_response_folded = user_response.casefold()
+        if user_response_folded in vaild_postive:
+            vaild_input_recived = True
+            return True
+        elif user_response_folded in vaild_negative:
+            vaild_input_recived = True
+            return False
+        else:
+            message += f"\n{user_response} is not vaild please enter  Y or N: "
 
 
 def create_parser():
     parser = argparse.ArgumentParser()
-    argcomplete.autocomplete(parser)
     sub_parsers = parser.add_subparsers(dest="subcommand")
     get_parser = sub_parsers.add_parser("get", help="Retrive information on "
                                         "the current journal state.")
-    get_parser.add_argument("section", help="Get information on a specfic "
-                                            "section of the journal.",
+    get_parser.add_argument("section", help="The section of the journal to "
+                                            "retrive tasks from.",
                                             default=None)
-    get_parser.add_argument("title", help="Get information on a specfic task.",
-                            default=None, nargs="?")
-    get_parser.add_argument("--no-flavor", help="Remove flavor text display "
-                            "objectives in a line seperated format",
-                            action="store_false", dest="flavor")
+
+    get_parser.add_argument("--no-flavor", help="Remove flavor text in the "
+                                                "output. Objectives in a line"
+                                                " seperated format.",
+                                                action="store_false",
+                                                dest="flavor")
 
     complete_parser = sub_parsers.add_parser("complete", help="Complete a "
                                              "specified objective.")
+
     complete_parser.add_argument("section", help="The section of the objective"
                                  " to complete.")
+
     complete_parser.add_argument("title", help="The title of the objective to "
                                  "complete.", nargs="?")
 
     add_parser = sub_parsers.add_parser("add", help="Adds a new objective to "
                                         "the journal in the specified section")
+
     add_parser.add_argument("section", help="The section for the new journal "
                             "entry.")
+
     add_parser.add_argument("title", help="The title of new journal entry",
                             nargs="?")
-    add_parser.add_argument("due_date", help="The due date of the new entry",
-                            nargs="?")
+
+    add_parser.add_argument("due_date", help="The due date of the new entry. "
+                                             "If not specified objective will "
+                                             "not be labeled as due.",
+                                             nargs="?")
 
     return parser
 
@@ -65,22 +90,50 @@ def procces_command(journal, journal_JSON, parser):
         raise Exception()
 
 
+def new_save_file(url):
+    try:
+        user_response = get_user_confirmation("Save file not found. Should"
+                                              " I create a new file at "
+                                              f"{url}? (Y/N): ")
+        if (user_response is True):
+            example_file_path = f"{PROGRAM_PATH}/questLogExample"
+            with open(example_file_path, "r") as default_file,\
+                    open(url, "w") as new_file:
+                default_file_data = default_file.read()
+                new_file.write(default_file_data)
+                new_file.flush()
+                return True
+        else:
+            return False
+    except FileNotFoundError:
+        mkdir(f"{PROGRAM_PATH}/save")
+        return new_save_file(url)
+
+
 def aquire_file(url, command, parser):
-        file_descriptor = fd_open(url, O_RDWR)
-        with open(file_descriptor, "r+") as file_object:
-            # Lock file if it is avaible with an exlusive lock.
-            lockf(file_descriptor, LOCK_EX)
-            file_contents = load(file_object)
-            output = command(file_contents, file_object, parser)
-            # unlock the file
-            lockf(file_descriptor, LOCK_UN)
-            return output
+        try:
+            file_descriptor = fd_open(url, O_RDWR)
+            with open(file_descriptor, "r+") as file_object:
+                # Lock file with an exlusive lock.
+                lockf(file_descriptor, LOCK_EX)
+                file_contents = load(file_object)
+                output = command(file_contents, file_object, parser)
+                # unlock the file
+                lockf(file_descriptor, LOCK_UN)
+                return output
+        except FileNotFoundError:
+            new_file_created = new_save_file(url)
+            if new_file_created is True:
+                return aquire_file(url, command, parser)
+            else:
+                print("Save file was not created. Exiting.")
+                exit(EX_IOERR)
 
 
 def main():
     parser = create_parser()
-    home_dir = environ["HOME"]
-    journal_url = f"{home_dir}/.config/questLog"
+    questLogLocation = f"{PROGRAM_PATH}/save/"
+    journal_url = f"{questLogLocation}/questLog"
     message = aquire_file(journal_url, procces_command, parser)
     print(message)
     return message
