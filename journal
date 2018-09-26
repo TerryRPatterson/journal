@@ -6,6 +6,7 @@ from json import load, dump as save
 from sys import argv, exit, path as package_path
 from os import environ, open as fd_open, O_RDWR, EX_IOERR, path, makedirs
 from fcntl import lockf, LOCK_UN, LOCK_EX
+from shutil import copyfile
 
 from get_task import get
 from complete_task import complete
@@ -87,10 +88,8 @@ def new_save_file(url, location_url, ask=True):
 
     if (user_response is True):
         try:
-            with open(url, "w") as new_file:
-                new_file.write(quest_log_example)
-                new_file.flush()
-                return True
+            copyfile(f"{PROGRAM_PATH}/questLogExample", url)
+            return True
         except FileNotFoundError:
             makedirs(location_url, exist_ok=True)
             return new_save_file(url, location_url, ask=False)
