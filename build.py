@@ -12,11 +12,11 @@ OUTPUT_FILE = "QuestLog.zip"
 
 def create_new_archive():
     with zipfile.ZipFile(OUTPUT_FILE, mode="x") as builtArchive:
-        builtArchive.write("install")
-        builtArchive.write("questLogExample")
+        builtArchive.write("install", "QuestLog/install")
+        builtArchive.write("questLogExample", "QuestLog/questLogExample")
         chdir("dist")
         for file in glob("**", recursive=True):
-            builtArchive.write(file)
+            builtArchive.write(file, f"QuestLog/{file}")
 
 
 try:
