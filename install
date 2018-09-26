@@ -1,0 +1,31 @@
+#! /usr/bin/env python3
+
+from os import symlink, mkdir, path, EX_NOPERM, environ, EX
+from platform import system
+from sys import argv, exit
+from shutil import copyfile
+from utility import get_user_confirmation
+
+PROGRAM_PATH = path.dirname(path.realpath(argv[0]))
+CURRENT_OS = system()
+if CURRENT_OS == "Windows":
+    raise NotImplementedError
+
+user_home = environ["HOME"]
+
+permission_request = (f"This will install journal to {PROGRAM_PATH} and place"
+                      "symbolic links to the exectuable in the user path."
+                      "Continue? (Y/N)")
+
+user_permission = get_user_confirmation(permission_request)
+
+if (user_permission is True):
+    quest_log_location = f"{user_home}/.config/questLog"
+    copyfile(f"{PROGRAM_PATH}/questLogExample", quest_log_location)
+    if current_os != "Windows":
+        symlink(f"{PROGRAM_PATH}/journal", f"{home}/bin/journal")
+    # else:
+        # Not implemented
+
+else:
+    exit(EX_NOPERM)
