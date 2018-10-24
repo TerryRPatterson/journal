@@ -1,16 +1,38 @@
-def add_single(journal, section, title, due_date=None):
+import arrow
+
+
+def add_single(journal, section, title, due_date):
     if section not in journal.keys():
         raise SyntaxError("Section does not exist.")
+
     new_task = {"Title": title,
                 "Due": due_date}
     journal[section].append(new_task)
-    return f"{title} added to {section}"
+    if due_date == "Not Due":
+        return f"{title} was added as {section}."
+    else:
+        return (
+                f"""{title} was added to {section} and is due in {arrow
+                                                               .get(due_date)
+                                                               .humanize()}."""
+                                                               )
 
 
-def add_primary(journal, title, due_date=None):
-    if "Primary" in journal.keys():
+def add_primary(journal, title, due_date):
+    if "Primary" in journal.keys() and journal["Primary"]:
         raise SyntaxWarning("You already have a primary objective please"
                             " complete it before assigning another")
+    journal["Primary"] = {
+                            "Title": title,
+                            "Due": due_date
+                            }
+    if due_date == "Not Due":
+        return f"{title} was added as primary."
+    else:
+        return (
+                f"""{title} was added to primary and is due in {arrow
+                                                                .get(due_date)
+                                                               .humanize()}""")
 
 
 def add_daily(journal, title):
@@ -25,15 +47,15 @@ def add(args, journal):
         new_title = args.new_title
     else:
         new_title = None
-    if "due" in args:
-        due_date = args.due
+    if "due_date" in args:
+        due_date = args.due_date
     else:
         due_date = "Not Due"
     if "title" in args:
         title = args.title
     section = args.section
     if section == "Primary":
-        return add_primary(journal, section, title, due_date)
+        return add_primary(journal, title, due_date)
     elif section == "Daily":
         return add_daily(journal, title)
     else:
